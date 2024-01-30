@@ -6,6 +6,6 @@ import (
 	"github.com/drizzleent/chat-server/internal/model"
 )
 
-func (s *srvc) SendMsg(ctx context.Context, info *model.Chat) error {
+func (s *srv) SendMsg(ctx context.Context, info *model.Chat) error {
 	return nil
 }

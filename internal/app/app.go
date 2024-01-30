@@ -6,6 +6,7 @@ import (
 	"net"
 
 	"github.com/drizzleent/chat-server/internal/config"
+	desc "github.com/drizzleent/chat-server/pkg/chat_v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
@@ -71,7 +72,8 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 	a.grpcServer = grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
 
 	reflection.Register(a.grpcServer)
-	//desc.Impl
+
+	desc.RegisterChatV1Server(a.grpcServer, a.serviceProvider.ChatImpl(ctx))
 
 	return nil
 }

@@ -1,11 +1,17 @@
-package api
+package chat
 
-import desc "github.com/drizzleent/chat-server/pkg/chat_v1"
+import (
+	"github.com/drizzleent/chat-server/internal/service"
+	desc "github.com/drizzleent/chat-server/pkg/chat_v1"
+)
 
 type Implementation struct {
 	desc.UnimplementedChatV1Server
+	chatService service.ChatService
 }
 
-func NewImplementation() *Implementation {
-	return &Implementation{}
+func NewImplementation(chatService service.ChatService) *Implementation {
+	return &Implementation{
+		chatService: chatService,
+	}
 }

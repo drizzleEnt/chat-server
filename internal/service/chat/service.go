@@ -2,9 +2,9 @@ package chat
 
 import "github.com/drizzleent/chat-server/internal/service"
 
-type srvc struct {
+type srv struct {
 }
 
 func NewService() service.ChatService {
-	return &srvc{}
+	return &srv{}
 }

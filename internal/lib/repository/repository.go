@@ -8,7 +8,7 @@ import (
 )
 
 type Chatting interface {
-	SendMessage(context.Context, model.User) error
+	SendMessage(context.Context, model.Chat) error
 	GetMessage(context.Context) (string, error)
 }
 
@@ -18,6 +18,6 @@ type Repository struct {
 
 func NewReository(db *pgx.Conn) *Repository {
 	return &Repository{
-		Chatting: NewChatPostgres(db),
+		//Chatting: NewChatPostgres(db),
 	}
 }
