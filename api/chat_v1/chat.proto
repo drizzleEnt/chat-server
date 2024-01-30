@@ -16,6 +16,7 @@ service Chat_v1{
 
 message CreateRequest{
     repeated string usernames = 1;
+    string msg =2;
 }
 
 message CreateResponse{

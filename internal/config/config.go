@@ -1,33 +1,21 @@
 package config
 
-import (
-	"log"
-	"os"
+import "github.com/subosito/gotenv"
 
-	"github.com/ilyakaznacheev/cleanenv"
-)
+func Load(path string) error {
+	err := gotenv.Load(path)
 
-type Config struct {
-	Server `yaml:"server"`
-}
-
-type Server struct {
-	Host string `yaml:"host"`
-	Port string `yaml:"port"`
-}
-
-func MustConfig() *Config {
-	configPath := "./config/config.yaml"
-
-	if _, err := os.Stat(configPath); os.IsExist(err) {
-		log.Fatalf("config %v does not exist", configPath)
+	if err != nil {
+		return err
 	}
 
-	var cfg Config
+	return nil
+}
 
-	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
-		log.Fatalf("cant read config %v", err.Error())
-	}
+type PgConfig interface {
+	DSN() string
+}
 
-	return &cfg
+type GRPCConfig interface {
+	Address() string
 }

@@ -6,6 +6,8 @@ import (
 	"log"
 	"math/big"
 
+	"github.com/drizzleent/chat-server/internal/lib/repository"
+	"github.com/drizzleent/chat-server/internal/model"
 	desc "github.com/drizzleent/chat-server/pkg/chat_v1"
 	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc/codes"
@@ -16,11 +18,13 @@ import (
 type ChatGrpcServer struct {
 	desc.UnimplementedChatV1Server
 	log *log.Logger
+	db  repository.Chatting
 }
 
-func NewChatGrpcServer(log *log.Logger) *ChatGrpcServer {
+func NewChatGrpcServer(log *log.Logger, db repository.Chatting) *ChatGrpcServer {
 	return &ChatGrpcServer{
 		log: log,
+		db:  db,
 	}
 }
 
@@ -64,6 +68,19 @@ func (s *ChatGrpcServer) SendMessage(ctx context.Context, req *desc.SendRequest)
 
 	if dline, ok := ctx.Deadline(); ok {
 		s.log.Printf("Deadline: %v\n", dline)
+	}
+
+	user := model.User{
+		Username: req.From,
+		Message: model.Message{
+			Text: req.Text,
+		},
+	}
+
+	err := s.db.SendMessage(ctx, user)
+
+	if err != nil {
+		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil
