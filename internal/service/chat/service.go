@@ -1,10 +1,16 @@
 package chat
 
-import "github.com/drizzleent/chat-server/internal/service"
+import (
+	"github.com/drizzleent/chat-server/internal/repository"
+	"github.com/drizzleent/chat-server/internal/service"
+)
 
 type srv struct {
+	repo repository.ChatRepository
 }
 
-func NewService() service.ChatService {
-	return &srv{}
+func NewService(repo repository.ChatRepository) service.ChatService {
+	return &srv{
+		repo: repo,
+	}
 }
