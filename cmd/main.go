@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/drizzleent/chat-server/internal/app"
+	_ "github.com/lib/pq"
 )
 
 func main() {

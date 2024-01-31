@@ -20,14 +20,14 @@ type SQLExecer interface {
 }
 
 type NamedExecer interface {
-	ScanOneContext(context.Context, interface{}, Quary, ...interface{}) error
-	ScanAllContext(context.Context, interface{}, Quary, ...interface{}) error
+	ScanOneContext(context.Context, interface{}, Query, ...interface{}) error
+	ScanAllContext(context.Context, interface{}, Query, ...interface{}) error
 }
 
 type QuaryExecer interface {
-	ExecContext(context.Context, Quary, ...interface{}) (pgconn.CommandTag, error)
-	QuaryContext(context.Context, Quary, ...interface{}) (pgx.Rows, error)
-	QuaryRowContext(context.Context, Quary, ...interface{}) pgx.Row
+	ExecContext(context.Context, Query, ...interface{}) (pgconn.CommandTag, error)
+	QuaryContext(context.Context, Query, ...interface{}) (pgx.Rows, error)
+	QuaryRowContext(context.Context, Query, ...interface{}) pgx.Row
 }
 
 type Transactor interface {
@@ -38,9 +38,9 @@ type Pinger interface {
 	Ping(context.Context) error
 }
 
-type Quary struct {
+type Query struct {
 	Name     string
-	QuaryRow string
+	QueryRow string
 }
 
 type DB interface {
