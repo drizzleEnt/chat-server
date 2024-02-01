@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/drizzleent/chat-server/internal/client/db"
+
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/pkg/errors"
 )
@@ -13,7 +14,14 @@ type pgClient struct {
 }
 
 func New(ctx context.Context, dsn string) (db.Client, error) {
-	dbc, err := pgxpool.Connect(ctx, dsn)
+	cfg, err := pgxpool.ParseConfig(dsn)
+	if err != nil {
+		return nil, errors.Errorf("failed to parse connconfig db: %s", err)
+	}
+
+	cfg.ConnConfig.PreferSimpleProtocol = true
+
+	dbc, err := pgxpool.ConnectConfig(ctx, cfg) //.Connect(ctx, dsn)
 	if err != nil {
 		return nil, errors.Errorf("failed to connect db: %s", err)
 	}
