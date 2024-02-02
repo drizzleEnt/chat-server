@@ -7,6 +7,7 @@ import (
 
 	"github.com/drizzleent/chat-server/internal/config"
 	desc "github.com/drizzleent/chat-server/pkg/chat_v1"
+	"github.com/drizzleent/chat-server/pkg/closer"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
@@ -18,6 +19,11 @@ type App struct {
 }
 
 func (a *App) Run() error {
+	defer func() {
+		closer.CloseAll()
+		closer.Wait()
+	}()
+
 	err := a.runGRPCServer()
 	if err != nil {
 		log.Fatalf("Failed to run grpc server %s", err.Error())
