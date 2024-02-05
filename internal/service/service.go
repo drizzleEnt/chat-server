@@ -9,5 +9,4 @@ import (
 type ChatService interface {
 	Create(context.Context, *model.Chat) (int64, error)
 	Delete(context.Context, int64) error
-	SendMsg(context.Context, *model.Chat) error
 }

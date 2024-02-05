@@ -17,7 +17,7 @@ func ToChatFromDescDelete(chat *desc.DeleteRequest) int64 {
 	return chat.Id
 }
 
-func ToChatFromDescSend(chat *desc.SendRequest) *model.Chat {
+func ToChatFromDescSend(chat *desc.SendMessageRequest) *model.Chat {
 	return &model.Chat{
 		Id: 0,
 	}
