@@ -9,5 +9,5 @@ import (
 type ChatRepository interface {
 	Create(context.Context, *model.Chat) (int64, error)
 	Delete(context.Context, int64) error
-	Send(context.Context, *model.Chat) error
+	//Send(context.Context, *model.Chat) error
 }
