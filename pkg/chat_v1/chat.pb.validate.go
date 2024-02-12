@@ -531,7 +531,9 @@ func (m *CreateRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Msg
+	// no validation rules for Username
+
+	// no validation rules for Password
 
 	if len(errors) > 0 {
 		return CreateRequestMultiError(errors)

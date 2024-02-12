@@ -7,8 +7,8 @@ import (
 
 func ToChatFromRepo(chat *modelRepo.Chat) *model.Chat {
 	return &model.Chat{
-		Id:   chat.Id,
-		Name: chat.Name,
-		Msg:  chat.Msg,
+		Id:       chat.Id,
+		Username: chat.Username,
+		Password: chat.Password,
 	}
 }

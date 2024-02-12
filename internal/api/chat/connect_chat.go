@@ -2,11 +2,21 @@ package chat
 
 import (
 	desc "github.com/drizzleent/chat-server/pkg/chat_v1"
+	auth "github.com/drizzleent/chat-server/pkg/user_v2"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 )
 
 func (i *Implementation) ConnectChat(req *desc.ConnectChatRequest, stream desc.ChatV1_ConnectChatServer) error {
+	client, err := connectAuthServer()
+	if err != nil {
+		return err
+	}
+
+	client.Get(stream.Context(), &auth.GetRequest{Id: 0})
+
 	i.mxChannel.RLock()
 	chatChan, ok := i.channels[req.GetChatId()]
 	i.mxChannel.RUnlock()
@@ -47,4 +57,14 @@ func (i *Implementation) ConnectChat(req *desc.ConnectChatRequest, stream desc.C
 		}
 
 	}
+}
+
+func connectAuthServer() (auth.UserV1Client, error) {
+	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, err
+	}
+	client := auth.NewUserV1Client(conn)
+
+	return client, nil
 }

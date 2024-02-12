@@ -44,7 +44,7 @@ lint:
 	GOBIN=$(LOCAL_BIN) golangci-lint run ./... --config .golangci.pipeline.yaml
 
 run:
-	go run cmd/main.go
+	go run cmd/chat/main.go
 
 local-migration-status:
 	goose -dir ${LOCAL_MIGRATION_DIR} postgres ${LOCAL_MIGRATION_DSN} status -v

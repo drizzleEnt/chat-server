@@ -28,23 +28,24 @@ func NewRepository(db db.Client) repository.ChatRepository {
 
 func (r *repo) Create(ctx context.Context, chat *model.Chat) (int64, error) {
 
-	query := fmt.Sprintf("INSERT INTO %s (%s,%s) values ($1, $2) RETURNING id", table, username, msg)
+	// query := fmt.Sprintf("INSERT INTO %s (%s,%s) values ($1, $2) RETURNING id", table, username, msg)
 
-	q := db.Query{
-		Name:     "chat.repository.Create",
-		QueryRow: query,
-	}
-	args := []interface{}{chat.Name, chat.Msg}
+	// q := db.Query{
+	// 	Name:     "chat.repository.Create",
+	// 	QueryRow: query,
+	// }
+	// args := []interface{}{chat.Name, chat.Msg}
 
-	var id int64
+	// var id int64
 
-	err := r.db.DB().QuaryRowContext(ctx, q, args...).Scan(&id)
+	// err := r.db.DB().QuaryRowContext(ctx, q, args...).Scan(&id)
 
-	if err != nil {
-		return 0, fmt.Errorf("failed to insert chat_server: %v", err)
-	}
+	// if err != nil {
+	// 	return 0, fmt.Errorf("failed to insert chat_server: %v", err)
+	// }
 
-	return id, nil
+	// return id, nil
+	return 0, nil
 }
 func (r *repo) Delete(ctx context.Context, chatId int64) error {
 	query := fmt.Sprintf("DELETE FROM %s WHERE %s=$1", table, id)
