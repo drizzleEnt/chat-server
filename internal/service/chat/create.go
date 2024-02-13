@@ -3,20 +3,20 @@ package chat
 import (
 	"context"
 
+	"github.com/drizzleent/chat-server/internal/connect"
 	"github.com/drizzleent/chat-server/internal/model"
 	auth "github.com/drizzleent/chat-server/pkg/user_v2"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 func (s *srv) Create(ctx context.Context, info *model.Chat) (int64, error) {
 	//id, err := s.repo.Create(ctx, info)
-	cl, err := connectAuthServer()
+	conn, err := connect.AuthServer()
 	if err != nil {
 		return 0, err
 	}
-
-	resp, err := cl.Create(ctx, &auth.CreateRequest{
+	client := auth.NewUserV1Client(conn)
+	defer conn.Close()
+	resp, err := client.Create(ctx, &auth.CreateRequest{
 		Info: &auth.UserCreate{
 			UserUpdate: &auth.UserUpdate{
 				Name:  info.Username,
@@ -32,14 +32,4 @@ func (s *srv) Create(ctx context.Context, info *model.Chat) (int64, error) {
 	}
 
 	return resp.GetId(), nil
-}
-
-func connectAuthServer() (auth.UserV1Client, error) {
-	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		return nil, err
-	}
-	client := auth.NewUserV1Client(conn)
-
-	return client, nil
 }
