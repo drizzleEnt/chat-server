@@ -34,6 +34,14 @@
         }
       }
     },
+    "chat_v1GetNameResponse": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
     "chat_v1Message": {
       "type": "object",
       "properties": {

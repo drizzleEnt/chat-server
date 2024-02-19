@@ -12,6 +12,7 @@ service Chat_v1{
     rpc CreateChat(google.protobuf.Empty) returns (CreateChatResponse);
     rpc ConnectChat (ConnectChatRequest) returns (stream Message);
     rpc SendMessage (SendMessageRequest) returns (google.protobuf.Empty);
+    rpc GetName(google.protobuf.Empty) returns(GetNameResponse);
     rpc Create(CreateRequest) returns (CreateResponse);
     rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
 }
@@ -35,6 +36,10 @@ message ConnectChatRequest{
 message SendMessageRequest{
     string chat_id = 1;
     Message message = 2;
+}
+
+message GetNameResponse{
+    string name = 1;
 }
 
 message CreateRequest{

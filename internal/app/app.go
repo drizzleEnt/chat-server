@@ -6,8 +6,10 @@ import (
 	"net"
 
 	"github.com/drizzleent/chat-server/internal/config"
+	"github.com/drizzleent/chat-server/internal/interceptor"
 	desc "github.com/drizzleent/chat-server/pkg/chat_v1"
 	"github.com/drizzleent/chat-server/pkg/closer"
+	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
@@ -75,7 +77,12 @@ func (a *App) initServiceProvider(_ context.Context) error {
 
 func (a *App) initGRPCServer(ctx context.Context) error {
 
-	a.grpcServer = grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	a.grpcServer = grpc.NewServer(grpc.Creds(insecure.NewCredentials()),
+		grpc.UnaryInterceptor(
+			grpcMiddleware.ChainUnaryServer(
+				interceptor.AuthInterceptor,
+			),
+		))
 
 	reflection.Register(a.grpcServer)
 
