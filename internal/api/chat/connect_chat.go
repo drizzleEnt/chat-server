@@ -12,7 +12,7 @@ func (i *Implementation) ConnectChat(req *desc.ConnectChatRequest, stream desc.C
 	i.mxChannel.RUnlock()
 
 	if !ok {
-		return status.Errorf(codes.NotFound, "chat not found")
+		return status.Errorf(codes.NotFound, "chat not found ")
 	}
 
 	i.mxChat.Lock()

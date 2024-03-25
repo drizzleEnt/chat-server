@@ -5,12 +5,11 @@ import (
 
 	desc "github.com/drizzleent/chat-server/pkg/chat_v1"
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/google/uuid"
 )
 
 func (i *Implementation) CreateChat(ctx context.Context, req *empty.Empty) (*desc.CreateChatResponse, error) {
 
-	chatId, err := uuid.NewUUID()
+	chatId, err := i.chatService.CreateChat(ctx)
 	if err != nil {
 		return nil, err
 	}

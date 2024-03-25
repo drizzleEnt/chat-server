@@ -2,6 +2,8 @@ version: '3'
 
 volumes:
   postgres_volume:
+  cache:
+    driver: local
 
 services:
   pg_chat:
@@ -22,3 +24,11 @@ services:
     restart: on-failure
     environment:
       DB_HOST: pg_chat
+  
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - cache/data

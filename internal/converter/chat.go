@@ -9,7 +9,7 @@ func ToChatFromDescCreate(chat *desc.CreateRequest) *model.Chat {
 	return &model.Chat{
 		Id:       0,
 		Username: chat.GetUsername(),
-		Password: chat.GetPassword(),
+		//Msg:      chat.GetPassword(),
 	}
 }
 

@@ -9,6 +9,6 @@ func ToChatFromRepo(chat *modelRepo.Chat) *model.Chat {
 	return &model.Chat{
 		Id:       chat.Id,
 		Username: chat.Username,
-		Password: chat.Password,
+		Msg:      chat.Msg,
 	}
 }

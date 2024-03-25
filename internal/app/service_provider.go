@@ -5,6 +5,8 @@ import (
 	"log"
 
 	"github.com/drizzleent/chat-server/internal/api/chat"
+	"github.com/drizzleent/chat-server/internal/client/cache"
+	"github.com/drizzleent/chat-server/internal/client/cache/rd"
 	"github.com/drizzleent/chat-server/internal/client/db"
 	"github.com/drizzleent/chat-server/internal/client/db/pg"
 	"github.com/drizzleent/chat-server/internal/config"
@@ -16,10 +18,12 @@ import (
 )
 
 type serviceProvider struct {
-	pgConfig   config.PgConfig
-	grpcConfig config.GRPCConfig
+	pgConfig    config.PgConfig
+	grpcConfig  config.GRPCConfig
+	redisConfig config.RedisConfig
 
-	dbClient db.Client
+	dbClient    db.Client
+	cacheClient cache.Client
 
 	chatRepository repository.ChatRepository
 
@@ -58,6 +62,36 @@ func (s *serviceProvider) GRPCConfig() config.GRPCConfig {
 	return s.grpcConfig
 }
 
+func (s *serviceProvider) RedisConfig() config.RedisConfig {
+	if nil == s.redisConfig {
+		cfg, err := env.NewRedisConfig()
+		if err != nil {
+			log.Fatalf("failed to load refis config: %s", err.Error())
+		}
+		s.redisConfig = cfg
+	}
+
+	return s.redisConfig
+}
+
+func (s *serviceProvider) RedisClient(ctx context.Context) cache.Client {
+	if nil == s.cacheClient {
+		cl, err := rd.New(ctx, s.RedisConfig())
+		if err != nil {
+			log.Fatalf("failed to create cache client: %s", err.Error())
+		}
+
+		err = cl.Cache().Ping(ctx)
+		if err != nil {
+			log.Fatalf("failed to ping cache client: %s", err.Error())
+		}
+
+		s.cacheClient = cl
+	}
+
+	return s.cacheClient
+}
+
 func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
 	if nil == s.dbClient {
 		cl, err := pg.New(ctx, s.PGConfig().DSN())
@@ -76,6 +110,8 @@ func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
 
 	return s.dbClient
 }
+
+func (s *serviceProvider) CacheRepository(ctx context.Context) re
 
 func (s *serviceProvider) ChatRepository(ctx context.Context) repository.ChatRepository {
 	if nil == s.chatRepository {
