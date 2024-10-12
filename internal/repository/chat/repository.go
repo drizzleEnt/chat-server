@@ -2,6 +2,7 @@ package chat
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/drizzleent/chat-server/internal/client/db"
@@ -14,9 +15,10 @@ const (
 	chatServerTable = "chat_server"
 	chatsTable      = "chats"
 	id              = "id"
+	chatUUID        = "chat_id"
 	username        = "username"
 	msg             = "message"
-	chatUUID        = "chatId"
+	chatName        = "chat_name"
 )
 
 type repo struct {
@@ -48,7 +50,6 @@ func (r *repo) Create(ctx context.Context, chat *model.Chat) (int64, error) {
 	}
 
 	return id, nil
-	//return 0, nil
 }
 func (r *repo) Delete(ctx context.Context, chatId int64) error {
 	query := fmt.Sprintf("DELETE FROM %s WHERE %s=$1", chatServerTable, id)
@@ -86,17 +87,23 @@ func (r *repo) CreateChat(ctx context.Context, chatId uuid.UUID) (int64, error) 
 	return id, nil
 }
 
-func (r *repo) GetChat(ctx context.Context, id string) error {
-	query := fmt.Sprintf("SELECT * FROM %s WHERE chatId=$1", chatsTable)
+func (r *repo) GetChat(ctx context.Context, id string) (bool, error) {
+	query := fmt.Sprintf("SELECT  FROM %s WHERE chat_id=$1", chatsTable)
 	q := db.Query{
 		Name:     "repository.GetChat",
 		QueryRow: query,
 	}
 	args := []interface{}{id}
-	res, err := r.db.DB().QuaryContext(ctx, q, args...)
+	var chatIdString string
+	_, err := r.db.DB().QuaryContext(ctx, q, args...)
 	if err != nil {
-		return fmt.Errorf("failed to get chat %v, tag= %v", err, res)
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return false, fmt.Errorf("failed to get chat %v", err)
 	}
 
-	return nil
+	fmt.Printf("chatIdString: %v\n", chatIdString)
+
+	return true, nil
 }

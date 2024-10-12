@@ -12,7 +12,7 @@ type ChatRepository interface {
 	Delete(context.Context, int64) error
 	//Send(context.Context, *model.Chat) error
 	CreateChat(context.Context, uuid.UUID) (int64, error)
-	GetChat(context.Context, string) error
+	GetChat(context.Context, string) (bool, error)
 }
 
 type CacheRepository interface {

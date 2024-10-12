@@ -1,25 +1,29 @@
 package chat
 
 import (
-	"context"
+	"fmt"
 
-	desc "github.com/drizzleent/chat-server/pkg/chat_v1"
-	"github.com/golang/protobuf/ptypes/empty"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
+	"github.com/drizzleent/chat-server/internal/model"
 )
 
-func (i *Implementation) SendMessage(ctx context.Context, req *desc.SendMessageRequest) (*empty.Empty, error) {
+func (i *Implementation) SendMessageToClient(incomeMsg *model.InMessage) {
 	i.mxChannel.RLock()
-	chatChan, ok := i.channels[req.GetChatId()]
+	chatChan, ok := i.channels[incomeMsg.ChatID]
 	i.mxChannel.RUnlock()
 
 	if !ok {
-		return nil, status.Errorf(codes.NotFound, "chat not found")
+		fmt.Println("failed send msg: chat not found")
+		return
 	}
 
-	chatChan <- req.GetMessage()
+	msg := <-chatChan
 
-	return &emptypb.Empty{}, nil
+	for _, chatClient := range i.chats[incomeMsg.ChatID].streams {
+		req := model.OutMessage{
+			From: msg.UserName,
+			Text: msg.Text,
+		}
+		chatClient.Write(&req)
+	}
+
 }

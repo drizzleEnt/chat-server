@@ -4,10 +4,11 @@ import (
 	"context"
 	"log"
 	"net"
+	"net/http"
+	"sync"
 
 	"github.com/drizzleent/chat-server/internal/config"
 	"github.com/drizzleent/chat-server/internal/interceptor"
-	desc "github.com/drizzleent/chat-server/pkg/chat_v1"
 	"github.com/drizzleent/chat-server/pkg/closer"
 	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
@@ -18,6 +19,7 @@ import (
 type App struct {
 	serviceProvider *serviceProvider
 	grpcServer      *grpc.Server
+	httpServer      *http.Server
 }
 
 func (a *App) Run() error {
@@ -25,11 +27,26 @@ func (a *App) Run() error {
 		closer.CloseAll()
 		closer.Wait()
 	}()
+	wg := sync.WaitGroup{}
 
-	err := a.runGRPCServer()
-	if err != nil {
-		log.Fatalf("Failed to run grpc server %s", err.Error())
-	}
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		err := a.runGRPCServer()
+		if err != nil {
+			log.Fatalf("Failed to run grpc server %s", err.Error())
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := a.runHTTPServer()
+		if err != nil {
+			log.Fatalf("Failed to run http server %s", err.Error())
+		}
+	}()
+
+	wg.Wait()
 
 	return nil
 }
@@ -50,6 +67,7 @@ func (a *App) initDebs(ctx context.Context) error {
 		a.initConfig,
 		a.initServiceProvider,
 		a.initGRPCServer,
+		a.initHttpServer,
 	}
 
 	for _, f := range inits {
@@ -86,8 +104,16 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 
 	reflection.Register(a.grpcServer)
 
-	desc.RegisterChatV1Server(a.grpcServer, a.serviceProvider.ChatImpl(ctx))
+	//desc.RegisterChatV1Server(a.grpcServer, a.serviceProvider.ChatImpl(ctx))
 
+	return nil
+}
+
+func (a *App) initHttpServer(ctx context.Context) error {
+	a.httpServer = &http.Server{
+		Addr:    a.serviceProvider.HTTPConfig().Address(),
+		Handler: nil,
+	}
 	return nil
 }
 
@@ -106,4 +132,10 @@ func (a *App) runGRPCServer() error {
 	}
 
 	return nil
+}
+
+func (a *App) runHTTPServer() error {
+	log.Printf("HTTP server is running on %s", a.serviceProvider.HTTPConfig().Address())
+	go a.serviceProvider.ChatImpl(context.Background()).Listen()
+	return a.httpServer.ListenAndServe()
 }

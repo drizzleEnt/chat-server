@@ -2,21 +2,27 @@ package chat
 
 import (
 	"context"
+	"fmt"
 
-	desc "github.com/drizzleent/chat-server/pkg/chat_v1"
-	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/drizzleent/chat-server/internal/model"
 )
 
-func (i *Implementation) CreateChat(ctx context.Context, req *empty.Empty) (*desc.CreateChatResponse, error) {
-
-	chatId, err := i.chatService.CreateChat(ctx)
-	if err != nil {
-		return nil, err
+func (i *Implementation) CreateChat(ctx context.Context, chatID string) error {
+	var chatId string
+	isExist, err := i.chatService.GetChat(ctx, chatID)
+	if !isExist {
+		if err != nil {
+			return err
+		}
+		fmt.Printf("chat not found, creating new chat %d\n", err)
+		newChatId, err := i.chatService.CreateChat(ctx)
+		if err != nil {
+			return err
+		}
+		chatId = newChatId.String()
 	}
 
-	i.channels[chatId.String()] = make(chan *desc.Message, 100)
+	i.channels[chatId] = make(chan *model.InMessage, 100)
 
-	return &desc.CreateChatResponse{
-		ChatId: chatId.String(),
-	}, nil
+	return nil
 }

@@ -20,12 +20,14 @@ import (
 type serviceProvider struct {
 	pgConfig    config.PgConfig
 	grpcConfig  config.GRPCConfig
+	httpConfig  config.HTTPConfig
 	redisConfig config.RedisConfig
 
 	dbClient    db.Client
 	cacheClient cache.Client
 
-	chatRepository repository.ChatRepository
+	chatRepository  repository.ChatRepository
+	cacheRepository repository.CacheRepository
 
 	chatService service.ChatService
 
@@ -60,6 +62,19 @@ func (s *serviceProvider) GRPCConfig() config.GRPCConfig {
 	}
 
 	return s.grpcConfig
+}
+
+func (s *serviceProvider) HTTPConfig() config.HTTPConfig {
+	if nil == s.httpConfig {
+		cfg, err := env.NewHttpConfig()
+		if err != nil {
+			log.Fatalf("failed to load grpc config: %s", err.Error())
+		}
+
+		s.httpConfig = cfg
+	}
+
+	return s.httpConfig
 }
 
 func (s *serviceProvider) RedisConfig() config.RedisConfig {
@@ -111,7 +126,13 @@ func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
 	return s.dbClient
 }
 
-func (s *serviceProvider) CacheRepository(ctx context.Context) re
+func (s *serviceProvider) CacheRepository(ctx context.Context) repository.CacheRepository {
+	if nil == s.cacheRepository {
+
+	}
+
+	return s.cacheRepository
+}
 
 func (s *serviceProvider) ChatRepository(ctx context.Context) repository.ChatRepository {
 	if nil == s.chatRepository {

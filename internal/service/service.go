@@ -12,5 +12,5 @@ type ChatService interface {
 	CreateChat(context.Context) (uuid.UUID, error)
 	Create(context.Context, *model.Chat) (int64, error)
 	Delete(context.Context, int64) error
-	GetChat(context.Context, string) error
+	GetChat(context.Context, string) (bool, error)
 }

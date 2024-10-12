@@ -4,10 +4,10 @@ import (
 	"context"
 )
 
-func (s *srv) GetChat(ctx context.Context, id string) error {
-	err := s.repo.GetChat(ctx, id)
+func (s *srv) GetChat(ctx context.Context, id string) (bool, error) {
+	isExist, err := s.repo.GetChat(ctx, id)
 	if err != nil {
-		return err
+		return false, err
 	}
-	return nil
+	return isExist, nil
 }

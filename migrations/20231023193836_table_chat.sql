@@ -1,10 +1,15 @@
 -- +goose Up
-CREATE TABLE chat_server(
+CREATE TABLE chats(
+    id SERIAL PRIMARY KEY,
+    chat_id TEXT NOT NULL
+);
+CREATE TABLE messages(
     id serial primary KEY,
-    username TEXT not null,
-    message text not null
+    user_id INTEGER not null,
+    message text not null,
+    chat_id INTEGER REFERENCES chats (id) ON DELETE CASCADE NOT NULL
 );
 
-
 -- +goose Down
-DROP TABLE chat_server;
+DROP TABLE chats;
+DROP TABLE messages;

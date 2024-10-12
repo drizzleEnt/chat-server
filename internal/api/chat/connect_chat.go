@@ -1,50 +1,39 @@
 package chat
 
 import (
-	desc "github.com/drizzleent/chat-server/pkg/chat_v1"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"context"
+	"fmt"
+
+	"github.com/drizzleent/chat-server/internal/model"
 )
 
-func (i *Implementation) ConnectChat(req *desc.ConnectChatRequest, stream desc.ChatV1_ConnectChatServer) error {
+func (i *Implementation) ConnectChat(cl *Client) {
 	i.mxChannel.RLock()
-	chatChan, ok := i.channels[req.GetChatId()]
+	_, ok := i.channels[cl.ChatID]
 	i.mxChannel.RUnlock()
 
 	if !ok {
-		return status.Errorf(codes.NotFound, "chat not found ")
+		err := i.CreateChat(context.Background(), cl.ChatID)
+		if err != nil {
+			fmt.Printf("err: %v\n", err)
+			return
+		}
+
+		//status.Errorf(codes.NotFound, "chat not found ")
+		i.mxChannel.RLock()
+		i.channels[cl.ChatID] = make(chan *model.InMessage, 100)
+		i.mxChannel.RUnlock()
 	}
 
 	i.mxChat.Lock()
-	if _, chatOk := i.chats[req.GetChatId()]; !chatOk {
-		i.chats[req.GetChatId()] = &Chat{
-			streams: map[string]desc.ChatV1_ConnectChatServer{},
+	if _, chatOk := i.chats[cl.ChatID]; !chatOk {
+		i.chats[cl.ChatID] = &Chat{
+			streams: map[int]*Client{},
 		}
 	}
 	i.mxChat.Unlock()
 
-	i.chats[req.GetChatId()].m.Lock()
-	i.chats[req.GetChatId()].streams[req.GetUsername()] = stream
-	i.chats[req.GetChatId()].m.Unlock()
-
-	for {
-		select {
-		case msg, okCh := <-chatChan:
-			if !okCh {
-				return nil
-			}
-
-			for _, st := range i.chats[req.GetChatId()].streams {
-				if err := st.Send(msg); err != nil {
-					return err
-				}
-			}
-		case <-stream.Context().Done():
-			i.chats[req.GetChatId()].m.Lock()
-			delete(i.chats[req.GetChatId()].streams, req.GetUsername())
-			i.chats[req.GetChatId()].m.Unlock()
-			return nil
-		}
-
-	}
+	i.chats[cl.ChatID].m.Lock()
+	i.chats[cl.ChatID].streams[cl.ID] = cl
+	i.chats[cl.ChatID].m.Unlock()
 }
