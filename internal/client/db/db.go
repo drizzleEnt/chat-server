@@ -26,8 +26,8 @@ type NamedExecer interface {
 
 type QuaryExecer interface {
 	ExecContext(context.Context, Query, ...interface{}) (pgconn.CommandTag, error)
-	QuaryContext(context.Context, Query, ...interface{}) (pgx.Rows, error)
-	QuaryRowContext(context.Context, Query, ...interface{}) pgx.Row
+	QueryContext(context.Context, Query, ...interface{}) (pgx.Rows, error)
+	QueryRowContext(context.Context, Query, ...interface{}) pgx.Row
 }
 
 type Transactor interface {

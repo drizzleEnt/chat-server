@@ -7,6 +7,7 @@ type Chat struct {
 }
 
 type InMessage struct {
+	Type     string `json:"type"` //text, join
 	UserID   int    `json:"id"`
 	UserName string `json:"user_name"`
 	ChatID   string `json:"chat_id"`

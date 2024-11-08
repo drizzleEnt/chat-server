@@ -33,7 +33,7 @@ func NewRepository(db db.Client) repository.ChatRepository {
 
 func (r *repo) Create(ctx context.Context, chat *model.Chat) (int64, error) {
 
-	query := fmt.Sprintf("INSERT INTO %s (%s,%s) values ($1, $2) RETURNING id", chatServerTable, username, msg)
+	query := fmt.Sprintf(`INSERT INTO %s (%s,%s) values ($1, $2) RETURNING id`, chatServerTable, username, msg)
 
 	q := db.Query{
 		Name:     "chat.repository.Create",
@@ -43,7 +43,7 @@ func (r *repo) Create(ctx context.Context, chat *model.Chat) (int64, error) {
 
 	var id int64
 
-	err := r.db.DB().QuaryRowContext(ctx, q, args...).Scan(&id)
+	err := r.db.DB().QueryRowContext(ctx, q, args...).Scan(&id)
 
 	if err != nil {
 		return 0, fmt.Errorf("failed to insert chat_server: %v", err)
@@ -52,7 +52,7 @@ func (r *repo) Create(ctx context.Context, chat *model.Chat) (int64, error) {
 	return id, nil
 }
 func (r *repo) Delete(ctx context.Context, chatId int64) error {
-	query := fmt.Sprintf("DELETE FROM %s WHERE %s=$1", chatServerTable, id)
+	query := fmt.Sprintf(`DELETE FROM %s WHERE %s=$1`, chatServerTable, id)
 
 	q := db.Query{
 		Name:     "chat_repository.Delete",
@@ -71,15 +71,15 @@ func (r *repo) Delete(ctx context.Context, chatId int64) error {
 }
 
 func (r *repo) CreateChat(ctx context.Context, chatId uuid.UUID) (int64, error) {
-	query := fmt.Sprintf("INSERT INTO %s (%s) VALUES ($1) RETURNING id", chatsTable, chatUUID)
+	query := fmt.Sprintf(`INSERT INTO %s (%s) VALUES ($1) RETURNING id`, chatsTable, chatUUID)
 	q := db.Query{
 		Name:     "repository.CreateChat",
 		QueryRow: query,
 	}
 
-	args := []interface{}{chatId}
+	args := []interface{}{chatId.String()}
 	var id int64
-	err := r.db.DB().QuaryRowContext(ctx, q, args...).Scan(&id)
+	err := r.db.DB().QueryRowContext(ctx, q, args...).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
@@ -88,22 +88,20 @@ func (r *repo) CreateChat(ctx context.Context, chatId uuid.UUID) (int64, error) 
 }
 
 func (r *repo) GetChat(ctx context.Context, id string) (bool, error) {
-	query := fmt.Sprintf("SELECT  FROM %s WHERE chat_id=$1", chatsTable)
+	query := fmt.Sprintf(`SELECT id FROM %s WHERE chat_id = $1`, chatsTable)
 	q := db.Query{
 		Name:     "repository.GetChat",
 		QueryRow: query,
 	}
 	args := []interface{}{id}
-	var chatIdString string
-	_, err := r.db.DB().QuaryContext(ctx, q, args...)
+	var chatID int
+	err := r.db.DB().QueryRowContext(ctx, q, args...).Scan(&chatID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return false, nil
+		} else {
+			return false, fmt.Errorf("failed to get chat %v", err)
 		}
-		return false, fmt.Errorf("failed to get chat %v", err)
 	}
-
-	fmt.Printf("chatIdString: %v\n", chatIdString)
-
-	return true, nil
+	return chatID != 0, nil
 }

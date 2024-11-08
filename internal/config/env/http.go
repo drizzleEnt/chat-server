@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	httpHostEnvName = "HTTP_HOST"
-	httpPortEnvName = "HTTP_PORT"
+	httpHostEnvName = "HTTP_HOST_CHAT"
+	httpPortEnvName = "HTTP_PORT_CHAT"
 )
 
 type httpConfig struct {

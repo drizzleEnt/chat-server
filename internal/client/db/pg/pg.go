@@ -27,7 +27,7 @@ func NewPool(dbc *pgxpool.Pool) *pg {
 }
 
 func (p *pg) ScanOneContext(ctx context.Context, dest interface{}, q db.Query, args ...interface{}) error {
-	row, err := p.QuaryContext(ctx, q, args...)
+	row, err := p.QueryContext(ctx, q, args...)
 
 	if err != nil {
 		return err
@@ -37,7 +37,7 @@ func (p *pg) ScanOneContext(ctx context.Context, dest interface{}, q db.Query, a
 }
 
 func (p *pg) ScanAllContext(ctx context.Context, dest interface{}, q db.Query, args ...interface{}) error {
-	rows, err := p.QuaryContext(ctx, q, args...)
+	rows, err := p.QueryContext(ctx, q, args...)
 
 	if err != nil {
 		return err
@@ -54,7 +54,7 @@ func (p *pg) ExecContext(ctx context.Context, q db.Query, args ...interface{}) (
 	return p.dbc.Exec(ctx, q.QueryRow, args...)
 }
 
-func (p *pg) QuaryContext(ctx context.Context, q db.Query, args ...interface{}) (pgx.Rows, error) {
+func (p *pg) QueryContext(ctx context.Context, q db.Query, args ...interface{}) (pgx.Rows, error) {
 	//logQuary(ctx, q, agrs)
 
 	if tx, ok := ctx.Value(TxKey).(pgx.Tx); ok {
@@ -64,7 +64,7 @@ func (p *pg) QuaryContext(ctx context.Context, q db.Query, args ...interface{}) 
 	return p.dbc.Query(ctx, q.QueryRow, args...)
 }
 
-func (p *pg) QuaryRowContext(ctx context.Context, q db.Query, args ...interface{}) pgx.Row {
+func (p *pg) QueryRowContext(ctx context.Context, q db.Query, args ...interface{}) pgx.Row {
 	if tx, ok := ctx.Value(TxKey).(pgx.Tx); ok {
 		return tx.QueryRow(ctx, q.QueryRow, args...)
 	}

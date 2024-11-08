@@ -77,13 +77,13 @@ func (i *Implementation) Listen() {
 	for {
 		select {
 		case c := <-i.addCh:
-			fmt.Printf("add ch c: %v\n", c)
 			i.ConnectChat(c)
 			log.Println("Now", len(i.chats[c.ChatID].streams), "clients connected to", c.ChatID)
 		case msg := <-i.getMsgFromClientCh:
 			i.SendMessageToClient(msg)
 		case c := <-i.delCh:
 			fmt.Printf("delCh c: %v\n", c)
+			i.deleteChat(c)
 		case err := <-i.errCh:
 			fmt.Printf("errCh err: %v\n", err)
 		case <-i.doneCh:
@@ -119,4 +119,10 @@ func (i *Implementation) Done() {
 }
 func (i *Implementation) Err(err error) {
 	i.errCh <- err
+}
+
+func (i *Implementation) deleteChat(c *Client) {
+	i.chats[string(c.ChatID)].m.Lock()
+	delete(i.chats[string(c.ChatID)].streams, c.ID)
+	i.chats[string(c.ChatID)].m.Unlock()
 }

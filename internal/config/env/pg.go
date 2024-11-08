@@ -7,10 +7,10 @@ import (
 )
 
 const (
-	dbname     = "PG_DATABASE_NAME"
+	dbname     = "PG_DATABASE_NAME_CHAT"
 	dbuser     = "PG_USER"
 	dbpassword = "PG_PASSWORD"
-	dbport     = "PG_PORT"
+	dbport     = "PG_PORT_CHAT"
 	dbhost     = "PG_HOST"
 	dbssl      = "PG_SSL"
 )

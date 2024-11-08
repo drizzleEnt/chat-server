@@ -1,9 +1,6 @@
 package chat
 
 import (
-	"context"
-	"fmt"
-
 	"github.com/drizzleent/chat-server/internal/model"
 )
 
@@ -13,12 +10,10 @@ func (i *Implementation) ConnectChat(cl *Client) {
 	i.mxChannel.RUnlock()
 
 	if !ok {
-		err := i.CreateChat(context.Background(), cl.ChatID)
+		err := i.CreateChat(cl.Conn().Request().Context(), cl.ChatID)
 		if err != nil {
-			fmt.Printf("err: %v\n", err)
 			return
 		}
-
 		//status.Errorf(codes.NotFound, "chat not found ")
 		i.mxChannel.RLock()
 		i.channels[cl.ChatID] = make(chan *model.InMessage, 100)
